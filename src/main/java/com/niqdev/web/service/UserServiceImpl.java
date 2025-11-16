@@ -4,6 +4,10 @@ import java.util.UUID;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.niqdev.web.dto.UserDto;
@@ -15,7 +19,16 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		UserEntity user = userRepository.findUserByEmail(username);
+		return User.builder().username(user.getEmail()).build();
+	}
+	
 	@Override
 	public UserDto createUser(UserDto userDto) {
 
@@ -29,7 +42,7 @@ public class UserServiceImpl implements UserService {
 		
 		userEntity.setUserId(UUID.randomUUID().toString());
 		
-		userEntity.setEncryptedPassword("test");
+		userEntity.setEncryptedPassword(passwordEncoder.encode(userDto.getPassword()));
 		
 		UserEntity userSaved = userRepository.save(userEntity);
 		

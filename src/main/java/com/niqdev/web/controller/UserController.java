@@ -16,7 +16,7 @@ import com.niqdev.web.model.UserResponseModel;
 import com.niqdev.web.service.UserService;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/v1/users")
 public class UserController {
 	
 	@Autowired
