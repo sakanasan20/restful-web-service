@@ -23,7 +23,7 @@ public class UserController {
 	private UserService userService;
 
 	@GetMapping
-	public String getUser() {
+	public String getUsers() {
 		return "Get User";
 	}
 	

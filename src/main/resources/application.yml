@@ -15,3 +15,11 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: update
+logging:
+  level:
+    "[org.springframework.security]": DEBUG
+    "[org.springframework.web]": DEBUG
+web:
+  expirationTime: 864000000
+  apiLoginUrl: /api/login
+  tokenSecret: token_secret_token_secret_token_secret_token_secret_token_secret_token_secret_token_secret_token_secret_token_secret_token_secret

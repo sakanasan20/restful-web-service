@@ -1,5 +1,6 @@
 package com.niqdev.web.service;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 import org.springframework.beans.BeanUtils;
@@ -25,8 +26,17 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		UserEntity user = userRepository.findUserByEmail(username);
-		return User.builder().username(user.getEmail()).build();
+		
+		UserEntity userEntity = userRepository.findUserByEmail(username);
+		
+		if (userEntity == null) {
+			throw new UsernameNotFoundException(username);
+		}
+		
+		return new User(
+				userEntity.getEmail(), 
+				userEntity.getEncryptedPassword(), 
+				new ArrayList<>());
 	}
 	
 	@Override
@@ -49,6 +59,22 @@ public class UserServiceImpl implements UserService {
 		UserDto userReturn = new UserDto();
 		
 		BeanUtils.copyProperties(userSaved, userReturn);
+		
+		return userReturn;
+	}
+
+	@Override
+	public UserDto getUser(String username) {
+		
+		UserEntity userEntity = userRepository.findUserByEmail(username);
+		
+		if (userEntity == null) {
+			throw new UsernameNotFoundException(username);
+		}
+		
+		UserDto userReturn = new UserDto();
+		
+		BeanUtils.copyProperties(userEntity, userReturn);
 		
 		return userReturn;
 	}
