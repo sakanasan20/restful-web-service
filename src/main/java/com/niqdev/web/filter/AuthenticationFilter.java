@@ -71,12 +71,12 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 		
 		byte[] secretBytes = Base64.getEncoder().encode(props.getTokenSecret().getBytes());
 		SecretKey key = Keys.hmacShaKeyFor(secretBytes);
-		String username = ((User) authResult.getPrincipal()).getUsername();
+		String email = ((User) authResult.getPrincipal()).getUsername();
 		Instant now = Instant.now();
-		UserDto userDto = userService.getUser(username);
+		UserDto userDto = userService.getUserByEmail(email);
 		
 		String jws = Jwts.builder()
-		    .subject(username)
+		    .subject(email)
 		    .expiration(Date.from(now.plusMillis(props.getExpirationTime())))
 		    .issuedAt(Date.from(now))
 		    .signWith(key, Jwts.SIG.HS512)

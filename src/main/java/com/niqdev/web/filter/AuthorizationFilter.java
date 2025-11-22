@@ -38,7 +38,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 			throws IOException, ServletException {
 
 		String headerAuth = request.getHeader(SecurityConstants.HEADER_STRING);
-		System.out.println("headerAuth: " + headerAuth);
+
 		if (headerAuth == null || !headerAuth.startsWith(SecurityConstants.TOKEN_PRIFIX)) {
 			chain.doFilter(request, response);
 			return;
@@ -52,7 +52,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 	private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
 		
 		String authorizationHeader = request.getHeader(SecurityConstants.HEADER_STRING);
-		System.out.println("authorizationHeader: " + authorizationHeader);
+
 		if (authorizationHeader == null) {
 			return null;
 		}
@@ -65,7 +65,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 		Jws<Claims> jwsClaims = jwtParser.parseSignedClaims(token);
 		Claims claims = jwsClaims.getPayload();
 		String subject = claims.getSubject();
-		System.out.println("subject: " + subject);
+
 		if (subject == null) {
 			return null;
 		}
