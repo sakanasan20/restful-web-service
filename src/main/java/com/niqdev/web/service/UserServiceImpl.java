@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.niqdev.web.dto.UserDto;
 import com.niqdev.web.entity.UserEntity;
@@ -27,72 +28,95 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		
-		UserEntity userEntity = userRepository.findUserByEmail(username);
+		UserEntity userFound = userRepository.findUserByEmail(username);
 		
-		if (userEntity == null) {
+		if (userFound == null) {
 			throw new UsernameNotFoundException(username);
 		}
 		
 		return new User(
-				userEntity.getEmail(), 
-				userEntity.getEncryptedPassword(), 
+				userFound.getEmail(), 
+				userFound.getEncryptedPassword(), 
 				new ArrayList<>());
 	}
 	
+	@Transactional
 	@Override
-	public UserDto createUser(UserDto userDto) {
+	public UserDto createUser(UserDto userToCreate) {
 
-		if (userRepository.findUserByEmail(userDto.getEmail()) != null) {
+		if (userRepository.findUserByEmail(userToCreate.getEmail()) != null) {
 			throw new RuntimeException("Record already exists");
 		}
 		
-		UserEntity userEntity = new UserEntity();
+		UserEntity userToSave = new UserEntity();
 		
-		BeanUtils.copyProperties(userDto, userEntity);
+		BeanUtils.copyProperties(userToCreate, userToSave);
 		
-		userEntity.setUserId(UUID.randomUUID().toString());
+		userToSave.setUserId(UUID.randomUUID().toString());
 		
-		userEntity.setEncryptedPassword(passwordEncoder.encode(userDto.getPassword()));
+		userToSave.setEncryptedPassword(passwordEncoder.encode(userToCreate.getPassword()));
 		
-		UserEntity userSaved = userRepository.save(userEntity);
+		UserEntity userSaved = userRepository.save(userToSave);
 		
-		UserDto userReturn = new UserDto();
+		UserDto userToReturn = new UserDto();
 		
-		BeanUtils.copyProperties(userSaved, userReturn);
+		BeanUtils.copyProperties(userSaved, userToReturn);
 		
-		return userReturn;
+		return userToReturn;
 	}
 
 	@Override
 	public UserDto getUserByEmail(String email) {
 		
-		UserEntity userEntity = userRepository.findUserByEmail(email);
+		UserEntity userFound = userRepository.findUserByEmail(email);
 		
-		if (userEntity == null) {
+		if (userFound == null) {
 			throw new UsernameNotFoundException(email);
 		}
 		
-		UserDto userReturn = new UserDto();
+		UserDto userToReturn = new UserDto();
 		
-		BeanUtils.copyProperties(userEntity, userReturn);
+		BeanUtils.copyProperties(userFound, userToReturn);
 		
-		return userReturn;
+		return userToReturn;
 	}
 
 	@Override
 	public UserDto getUserByUserId(String userId) {
 		
-		UserEntity userEntity = userRepository.findUserByUserId(userId);
+		UserEntity userFound = userRepository.findUserByUserId(userId);
 		
-		if (userEntity == null) {
+		if (userFound == null) {
 			throw new UsernameNotFoundException(userId);
 		}
 		
-		UserDto userReturn = new UserDto();
+		UserDto userToReturn = new UserDto();
 		
-		BeanUtils.copyProperties(userEntity, userReturn);
+		BeanUtils.copyProperties(userFound, userToReturn);
 		
-		return userReturn;
+		return userToReturn;
+	}
+
+	@Transactional
+	@Override
+	public UserDto updateUser(String userId, UserDto userDto) {
+		
+		UserEntity userFound = userRepository.findUserByUserId(userId);
+		
+		if (userFound == null) {
+			throw new UsernameNotFoundException(userId);
+		}
+		
+		userFound.setFirstName(userDto.getFirstName());
+		userFound.setLastName(userDto.getLastName());
+
+		UserEntity userUpdated = userRepository.save(userFound);
+		
+		UserDto userToReturn = new UserDto();
+		
+		BeanUtils.copyProperties(userUpdated, userToReturn);
+		
+		return userToReturn;
 	}
 
 }

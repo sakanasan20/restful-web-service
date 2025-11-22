@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.niqdev.web.dto.UserDto;
 import com.niqdev.web.exception.UserServiceException;
 import com.niqdev.web.model.request.UserCreateModel;
+import com.niqdev.web.model.request.UserUpdateModel;
 import com.niqdev.web.model.response.ErrorMessages;
 import com.niqdev.web.model.response.UserModel;
 import com.niqdev.web.service.UserService;
@@ -65,9 +66,23 @@ public class UserController {
 		return userResponseModel;
 	}
 	
-	@PutMapping
-	public String updateUser() {
-		return "Update User";
+	@PutMapping(path = "/{userId}", 
+			consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE },
+			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+	public UserModel updateUser(@PathVariable(name = "userId") String userId, 
+			@RequestBody UserUpdateModel user) {
+		
+		UserModel userResponseModel = new UserModel();
+		
+		UserDto userDto = new UserDto();
+		
+		BeanUtils.copyProperties(user, userDto);
+		
+		UserDto updatedUser = userService.updateUser(userId, userDto);
+		
+		BeanUtils.copyProperties(updatedUser, userResponseModel);
+		
+		return userResponseModel;
 	}
 	
 	@DeleteMapping
