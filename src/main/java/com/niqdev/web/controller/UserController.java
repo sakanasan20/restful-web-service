@@ -13,8 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.niqdev.web.dto.UserDto;
-import com.niqdev.web.model.UserRequestModel;
-import com.niqdev.web.model.UserResponseModel;
+import com.niqdev.web.exception.UserServiceException;
+import com.niqdev.web.model.request.UserCreateModel;
+import com.niqdev.web.model.response.ErrorMessages;
+import com.niqdev.web.model.response.UserModel;
 import com.niqdev.web.service.UserService;
 
 @RestController
@@ -31,9 +33,9 @@ public class UserController {
 	
 	@GetMapping(path = "/{userId}", 
 			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-	public UserResponseModel getUser(@PathVariable(name = "userId") String userId) {
+	public UserModel getUser(@PathVariable(name = "userId") String userId) {
 		
-		UserResponseModel userResponseModel = new UserResponseModel();
+		UserModel userResponseModel = new UserModel();
 		
 		UserDto foundUser = userService.getUserByUserId(userId);
 		
@@ -44,13 +46,17 @@ public class UserController {
 	
 	@PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE }, 
 			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-	public UserResponseModel createUser(@RequestBody UserRequestModel userRequestModel) {
+	public UserModel createUser(@RequestBody UserCreateModel user) {
 		
-		UserResponseModel userResponseModel = new UserResponseModel();
+		if (user.getFirstName().isBlank()) {
+			throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
+		}
+		
+		UserModel userResponseModel = new UserModel();
 		
 		UserDto userDto = new UserDto();
 		
-		BeanUtils.copyProperties(userRequestModel, userDto);
+		BeanUtils.copyProperties(user, userDto);
 		
 		UserDto createdUser = userService.createUser(userDto);
 		

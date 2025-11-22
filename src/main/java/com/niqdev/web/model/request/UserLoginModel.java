@@ -1,6 +1,6 @@
-package com.niqdev.web.model;
+package com.niqdev.web.model.request;
 
-public class LoginRequestModel {
+public class UserLoginModel {
 
 	private String email;
 	

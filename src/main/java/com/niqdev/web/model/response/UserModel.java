@@ -1,6 +1,6 @@
-package com.niqdev.web.model;
+package com.niqdev.web.model.response;
 
-public class UserResponseModel {
+public class UserModel {
 
 	private String userId;
 

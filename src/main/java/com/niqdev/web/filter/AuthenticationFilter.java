@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.niqdev.web.config.SecurityConstants;
 import com.niqdev.web.config.SecurityProperties;
 import com.niqdev.web.dto.UserDto;
-import com.niqdev.web.model.LoginRequestModel;
+import com.niqdev.web.model.request.UserLoginModel;
 import com.niqdev.web.service.UserService;
 
 import io.jsonwebtoken.Jwts;
@@ -46,10 +46,10 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 			throws AuthenticationException {
 		
 		try {
-			LoginRequestModel loginRequestModel = 
+			UserLoginModel loginRequestModel = 
 					new ObjectMapper().readValue(
 							request.getInputStream(), 
-							LoginRequestModel.class);
+							UserLoginModel.class);
 			
 			return this.getAuthenticationManager()
 					.authenticate(

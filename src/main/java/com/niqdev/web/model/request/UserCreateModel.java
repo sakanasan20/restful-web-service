@@ -1,6 +1,6 @@
-package com.niqdev.web.model;
+package com.niqdev.web.model.request;
 
-public class UserRequestModel {
+public class UserCreateModel {
 
 	private String firstName;
 	
