@@ -2,6 +2,7 @@ package com.niqdev.web.controller;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,7 +29,8 @@ public class UserController {
 		return "Get User";
 	}
 	
-	@GetMapping(path = "/{userId}")
+	@GetMapping(path = "/{userId}", 
+			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	public UserResponseModel getUser(@PathVariable(name = "userId") String userId) {
 		
 		UserResponseModel userResponseModel = new UserResponseModel();
@@ -40,7 +42,8 @@ public class UserController {
 		return userResponseModel;
 	}
 	
-	@PostMapping
+	@PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE }, 
+			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	public UserResponseModel createUser(@RequestBody UserRequestModel userRequestModel) {
 		
 		UserResponseModel userResponseModel = new UserResponseModel();
