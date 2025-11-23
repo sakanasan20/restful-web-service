@@ -1,5 +1,8 @@
 package com.niqdev.web.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -10,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.niqdev.web.dto.UserDto;
@@ -30,22 +34,34 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 
-	@GetMapping
-	public String getUsers() {
-		return "Get User";
+	@GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+	public List<UserModel> getUsers(@RequestParam(value = "page", defaultValue = "0") int page,
+			@RequestParam(value = "limit", defaultValue = "25") int limit) {
+		
+		List<UserModel> userModels = new ArrayList<>();
+		
+		List<UserDto> usersFound = userService.getUsers(page, limit);
+		
+		for (UserDto userFound : usersFound) {
+			UserModel userModel = new UserModel();
+			BeanUtils.copyProperties(userFound, userModel);
+			userModels.add(userModel);
+		}
+		
+		return userModels;
 	}
 	
 	@GetMapping(path = "/{userId}", 
 			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	public UserModel getUser(@PathVariable(name = "userId") String userId) {
 		
-		UserModel userResponseModel = new UserModel();
+		UserModel userModel = new UserModel();
 		
-		UserDto foundUser = userService.getUserByUserId(userId);
+		UserDto userFound = userService.getUserByUserId(userId);
 		
-		BeanUtils.copyProperties(foundUser, userResponseModel);
+		BeanUtils.copyProperties(userFound, userModel);
 		
-		return userResponseModel;
+		return userModel;
 	}
 	
 	@PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE }, 
@@ -56,7 +72,7 @@ public class UserController {
 			throw new UserServiceException(UserServiceErrors.MISSING_REQUIRED_FIELD);
 		}
 		
-		UserModel userResponseModel = new UserModel();
+		UserModel userModel = new UserModel();
 		
 		UserDto userDto = new UserDto();
 		
@@ -64,9 +80,9 @@ public class UserController {
 		
 		UserDto createdUser = userService.createUser(userDto);
 		
-		BeanUtils.copyProperties(createdUser, userResponseModel);
+		BeanUtils.copyProperties(createdUser, userModel);
 		
-		return userResponseModel;
+		return userModel;
 	}
 	
 	@PutMapping(path = "/{userId}", 
@@ -75,7 +91,7 @@ public class UserController {
 	public UserModel updateUser(@PathVariable(name = "userId") String userId, 
 			@RequestBody UserUpdateModel user) {
 		
-		UserModel userResponseModel = new UserModel();
+		UserModel userModel = new UserModel();
 		
 		UserDto userDto = new UserDto();
 		
@@ -83,9 +99,9 @@ public class UserController {
 		
 		UserDto updatedUser = userService.updateUser(userId, userDto);
 		
-		BeanUtils.copyProperties(updatedUser, userResponseModel);
+		BeanUtils.copyProperties(updatedUser, userModel);
 		
-		return userResponseModel;
+		return userModel;
 	}
 	
 	@DeleteMapping(path = "/{userId}")

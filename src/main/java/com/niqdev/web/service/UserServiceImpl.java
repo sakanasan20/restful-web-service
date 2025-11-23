@@ -1,10 +1,14 @@
 package com.niqdev.web.service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -134,6 +138,31 @@ public class UserServiceImpl implements UserService {
 		}
 		
 		userRepository.delete(userFound);
+	}
+
+	@Override
+	public List<UserDto> getUsers(int page, int limit) {
+		
+		if (page > 0) {
+			page = page - 1;
+		}
+		
+		Pageable pageable = PageRequest.of(page, limit);
+		
+		Page<UserEntity> usersFound = userRepository.findAll(pageable);
+		
+		List<UserDto> usersToReturn = new ArrayList<>();
+		
+		for (UserEntity userFound : usersFound) {
+			
+			UserDto userToReturn = new UserDto();
+			
+			BeanUtils.copyProperties(userFound, userToReturn);
+			
+			usersToReturn.add(userToReturn);
+		}
+		
+		return usersToReturn;
 	}
 
 }
