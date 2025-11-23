@@ -51,8 +51,6 @@ public class UserServiceImpl implements UserService {
 	public UserDto createUser(UserDto userToCreate) {
 
 		if (userRepository.findUserByEmail(userToCreate.getEmail()) != null) {
-			System.out.println(UserServiceErrors.RECORD_ALREADY_EXISTS.getErrorMessage());
-			System.out.println(UserServiceErrors.RECORD_ALREADY_EXISTS.getHttpStatus());
 			throw new UserServiceException(UserServiceErrors.RECORD_ALREADY_EXISTS);
 		}
 		

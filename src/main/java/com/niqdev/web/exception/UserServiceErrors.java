@@ -2,6 +2,9 @@ package com.niqdev.web.exception;
 
 import org.springframework.http.HttpStatus;
 
+import lombok.Getter;
+
+@Getter
 public enum UserServiceErrors {
 
 	MISSING_REQUIRED_FIELD("Missing required field. Please check documentation for required fields", HttpStatus.BAD_REQUEST), 
@@ -13,29 +16,13 @@ public enum UserServiceErrors {
 	COULD_NOT_DELETE_RECORD("Could not delete record", HttpStatus.BAD_REQUEST), 
 	EMAIL_ADDRESS_NOT_VERIFIED("Email address could not be verified", HttpStatus.UNAUTHORIZED);
 
-	private String errorMessage;
+	private final String errorMessage;
 	
-	private HttpStatus httpStatus;
+	private final HttpStatus httpStatus;
 
 	private UserServiceErrors(String errorMessage, HttpStatus httpStatus) {
 		this.errorMessage = errorMessage;
 		this.httpStatus = httpStatus;
 	}
 
-	public String getErrorMessage() {
-		return errorMessage;
-	}
-
-	public void setErrorMessage(String errorMessage) {
-		this.errorMessage = errorMessage;
-	}
-
-	public HttpStatus getHttpStatus() {
-		return httpStatus;
-	}
-
-	public void setHttpStatus(HttpStatus httpStatus) {
-		this.httpStatus = httpStatus;
-	}
-	
 }
