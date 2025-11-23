@@ -13,10 +13,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.niqdev.web.dto.UserDto;
+import com.niqdev.web.exception.OperationNames;
+import com.niqdev.web.exception.OperationStatuses;
+import com.niqdev.web.exception.UserServiceErrors;
 import com.niqdev.web.exception.UserServiceException;
 import com.niqdev.web.model.request.UserCreateModel;
 import com.niqdev.web.model.request.UserUpdateModel;
-import com.niqdev.web.model.response.ErrorMessages;
+import com.niqdev.web.model.response.OperationStatusModel;
 import com.niqdev.web.model.response.UserModel;
 import com.niqdev.web.service.UserService;
 
@@ -50,7 +53,7 @@ public class UserController {
 	public UserModel createUser(@RequestBody UserCreateModel user) {
 		
 		if (user.getFirstName().isBlank()) {
-			throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
+			throw new UserServiceException(UserServiceErrors.MISSING_REQUIRED_FIELD);
 		}
 		
 		UserModel userResponseModel = new UserModel();
@@ -85,9 +88,17 @@ public class UserController {
 		return userResponseModel;
 	}
 	
-	@DeleteMapping
-	public String deleteUser() {
-		return "Delete User";
+	@DeleteMapping(path = "/{userId}")
+	public OperationStatusModel deleteUser(@PathVariable(name = "userId") String userId) {
+		
+		userService.deleteUser(userId);
+		
+		OperationStatusModel operationStatus = new OperationStatusModel();
+		
+		operationStatus.setOperationName(OperationNames.DELETE.name());
+		operationStatus.setOperationResult(OperationStatuses.SUCCESS.name());
+		
+		return operationStatus;
 	}
 	
 }

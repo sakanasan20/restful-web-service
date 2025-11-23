@@ -24,7 +24,7 @@ public class WebExceptionHandler {
 		
 		return new ResponseEntity<>(errorMessageModel, 
 				new HttpHeaders(), 
-				HttpStatus.INTERNAL_SERVER_ERROR);
+				ex.getUserServiceErrors().getHttpStatus());
 	}
 	
 	@ExceptionHandler(value = { Exception.class })

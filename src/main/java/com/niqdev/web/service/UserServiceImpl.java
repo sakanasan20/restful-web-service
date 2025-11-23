@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.niqdev.web.dto.UserDto;
 import com.niqdev.web.entity.UserEntity;
+import com.niqdev.web.exception.UserServiceErrors;
+import com.niqdev.web.exception.UserServiceException;
 import com.niqdev.web.repository.UserRepository;
 
 @Service
@@ -31,7 +33,7 @@ public class UserServiceImpl implements UserService {
 		UserEntity userFound = userRepository.findUserByEmail(username);
 		
 		if (userFound == null) {
-			throw new UsernameNotFoundException(username);
+			throw new UserServiceException(UserServiceErrors.NO_RECORD_FOUND);
 		}
 		
 		return new User(
@@ -45,7 +47,9 @@ public class UserServiceImpl implements UserService {
 	public UserDto createUser(UserDto userToCreate) {
 
 		if (userRepository.findUserByEmail(userToCreate.getEmail()) != null) {
-			throw new RuntimeException("Record already exists");
+			System.out.println(UserServiceErrors.RECORD_ALREADY_EXISTS.getErrorMessage());
+			System.out.println(UserServiceErrors.RECORD_ALREADY_EXISTS.getHttpStatus());
+			throw new UserServiceException(UserServiceErrors.RECORD_ALREADY_EXISTS);
 		}
 		
 		UserEntity userToSave = new UserEntity();
@@ -71,7 +75,7 @@ public class UserServiceImpl implements UserService {
 		UserEntity userFound = userRepository.findUserByEmail(email);
 		
 		if (userFound == null) {
-			throw new UsernameNotFoundException(email);
+			throw new UserServiceException(UserServiceErrors.NO_RECORD_FOUND);
 		}
 		
 		UserDto userToReturn = new UserDto();
@@ -87,7 +91,7 @@ public class UserServiceImpl implements UserService {
 		UserEntity userFound = userRepository.findUserByUserId(userId);
 		
 		if (userFound == null) {
-			throw new UsernameNotFoundException(userId);
+			throw new UserServiceException(UserServiceErrors.NO_RECORD_FOUND);
 		}
 		
 		UserDto userToReturn = new UserDto();
@@ -104,7 +108,7 @@ public class UserServiceImpl implements UserService {
 		UserEntity userFound = userRepository.findUserByUserId(userId);
 		
 		if (userFound == null) {
-			throw new UsernameNotFoundException(userId);
+			throw new UserServiceException(UserServiceErrors.NO_RECORD_FOUND);
 		}
 		
 		userFound.setFirstName(userDto.getFirstName());
@@ -117,6 +121,19 @@ public class UserServiceImpl implements UserService {
 		BeanUtils.copyProperties(userUpdated, userToReturn);
 		
 		return userToReturn;
+	}
+
+	@Transactional
+	@Override
+	public void deleteUser(String userId) {
+		
+		UserEntity userFound = userRepository.findUserByUserId(userId);
+		
+		if (userFound == null) {
+			throw new UserServiceException(UserServiceErrors.NO_RECORD_FOUND);
+		}
+		
+		userRepository.delete(userFound);
 	}
 
 }
