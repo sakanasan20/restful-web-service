@@ -1,3 +1,7 @@
+#server:
+#  servlet:
+    # http://localhost:8080/restful-web-service/api/v1/users
+#    context-path: '/restful-web-service'
 spring:
   application:
     name: restful-web-service
