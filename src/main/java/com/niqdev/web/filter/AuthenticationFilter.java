@@ -15,9 +15,9 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.niqdev.web.config.SecurityConstants;
-import com.niqdev.web.config.SecurityProperties;
 import com.niqdev.web.dto.request.UserLoginDto;
+import com.niqdev.web.security.SecurityConstants;
+import com.niqdev.web.security.SecurityProperties;
 import com.niqdev.web.security.SecurityUser;
 
 import io.jsonwebtoken.Jwts;

@@ -13,6 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import com.niqdev.web.filter.AuthenticationFilter;
 import com.niqdev.web.filter.AuthorizationFilter;
+import com.niqdev.web.security.SecurityProperties;
 
 import lombok.RequiredArgsConstructor;
 

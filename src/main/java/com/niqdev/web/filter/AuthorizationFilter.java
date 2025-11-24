@@ -11,8 +11,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import com.niqdev.web.config.SecurityConstants;
-import com.niqdev.web.config.SecurityProperties;
+import com.niqdev.web.security.SecurityConstants;
+import com.niqdev.web.security.SecurityProperties;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;

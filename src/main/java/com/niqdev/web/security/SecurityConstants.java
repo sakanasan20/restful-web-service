@@ -1,4 +1,4 @@
-package com.niqdev.web.config;
+package com.niqdev.web.security;
 
 import org.springframework.stereotype.Component;
 
