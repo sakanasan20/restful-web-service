@@ -10,6 +10,8 @@ import lombok.Setter;
 public class AddressResponseDto implements Serializable {
 
 	private static final long serialVersionUID = -409403899756248293L;
+	
+	private String addressId;
 
 	private String street;
     

@@ -14,6 +14,8 @@ public class AddressModel implements Serializable {
 	private static final long serialVersionUID = -7204018254310489070L;
 	
 	private Long id;
+	
+	private String addressId;
 
 	private String street;
     
@@ -24,5 +26,7 @@ public class AddressModel implements Serializable {
     private String country;
     
     private String type;
+    
+    private String userId;
 	
 }
