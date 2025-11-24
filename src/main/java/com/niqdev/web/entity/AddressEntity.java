@@ -27,19 +27,29 @@ public class AddressEntity {
 	@Column(nullable = false, unique = true)
 	private String addressId;
 	
+	@Column(nullable = false, length = 100)
 	private String street;
     
+	@Column(nullable = false, length = 15)
     private String city;
     
+	@Column(nullable = false, length = 7)
     private String postalCode;
     
+	@Column(nullable = false, length = 15)
     private String country;
     
+	@Column(nullable = false, length = 10)
     private String type;
     
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private UserEntity user;
+    
+    @ToString.Include(name = "userId")
+    public String getUserId() {
+        return user != null ? user.getUserId() : null;
+    }
 	
 }
