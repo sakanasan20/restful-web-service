@@ -1,6 +1,7 @@
 package com.niqdev.web.dto.request;
 
 import java.io.Serializable;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -14,5 +15,7 @@ public class UserUpdateDto implements Serializable {
 	private String firstName;
 	
 	private String lastName;
+	
+	private List<AddressUpdateDto> addresses;
 	
 }

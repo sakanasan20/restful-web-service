@@ -1,6 +1,7 @@
 package com.niqdev.web.dto.request;
 
 import java.io.Serializable;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -18,5 +19,7 @@ public class UserCreateDto implements Serializable {
 	private String email;
 	
 	private String password;
+	
+	private List<AddressCreateDto> addresses;
 	
 }

@@ -1,6 +1,7 @@
 package com.niqdev.web.dto.response;
 
 import java.io.Serializable;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -18,5 +19,7 @@ public class UserResponseDto implements Serializable {
 	private String lastName;
 	
 	private String email;
+	
+	private List<AddressResponseDto> addresses;
 	
 }

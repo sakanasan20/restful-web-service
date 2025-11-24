@@ -1,12 +1,15 @@
 package com.niqdev.web.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 public class UserModel implements Serializable {
 	
 	private static final long serialVersionUID = -82378767100517158L;
@@ -28,5 +31,7 @@ public class UserModel implements Serializable {
 	private String emailVerificationToken;
 	
 	private Boolean emailVerificationStatus = false;
+	
+	private List<AddressModel> addresses;
 
 }

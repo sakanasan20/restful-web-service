@@ -12,15 +12,13 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.niqdev.web.config.SecurityConstants;
 import com.niqdev.web.config.SecurityProperties;
 import com.niqdev.web.dto.request.UserLoginDto;
-import com.niqdev.web.model.UserModel;
-import com.niqdev.web.service.UserService;
+import com.niqdev.web.security.SecurityUser;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -31,12 +29,10 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-	private final UserService userService;
 	private final SecurityProperties props;
 	
-	public AuthenticationFilter(AuthenticationManager authenticationManager, UserService userService, SecurityProperties props) {
+	public AuthenticationFilter(AuthenticationManager authenticationManager, SecurityProperties props) {
 		super(authenticationManager);
-		this.userService = userService;
 		this.props = props;
 	}
 
@@ -68,11 +64,13 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 			HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) 
 			throws IOException, ServletException {
 		
+		SecurityUser principal = (SecurityUser) authResult.getPrincipal();
+	    String userId = principal.getUserId();
+	    String email = principal.getUsername();
+		
 		byte[] secretBytes = Base64.getEncoder().encode(props.getTokenSecret().getBytes());
 		SecretKey key = Keys.hmacShaKeyFor(secretBytes);
-		String email = ((User) authResult.getPrincipal()).getUsername();
 		Instant now = Instant.now();
-		UserModel userModel = userService.getUserByEmailInternal(email);
 		
 		String jws = Jwts.builder()
 		    .subject(email)
@@ -81,7 +79,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 		    .signWith(key, Jwts.SIG.HS512)
 		    .compact();
 
-		response.addHeader("UserId", userModel.getUserId());
+		response.addHeader("UserId", userId);
 		response.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PRIFIX + jws);
 	}
 

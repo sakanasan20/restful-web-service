@@ -13,7 +13,6 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import com.niqdev.web.filter.AuthenticationFilter;
 import com.niqdev.web.filter.AuthorizationFilter;
-import com.niqdev.web.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -36,8 +35,8 @@ public class SecurityConfig {
 	}
 	
 	@Bean
-	AuthenticationFilter authenticationFilter(AuthenticationManager authenticationManager, UserService userService) {
-		AuthenticationFilter authenticationFilter = new AuthenticationFilter(authenticationManager, userService, props);
+	AuthenticationFilter authenticationFilter(AuthenticationManager authenticationManager) {
+		AuthenticationFilter authenticationFilter = new AuthenticationFilter(authenticationManager, props);
 		authenticationFilter.setFilterProcessesUrl(props.getApiLoginUrl());
 		return authenticationFilter;
 	}
@@ -62,7 +61,7 @@ public class SecurityConfig {
 				.requestMatchers(
 					"/swagger-ui/**",  
 		            "/v3/api-docs/**", 
-		            "/h2/**", 
+		            "/h2-console/**", 
 		            "/api/login"
 			    ).permitAll()
 				.requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll()

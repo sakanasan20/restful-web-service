@@ -8,7 +8,6 @@ import com.niqdev.web.dto.request.UserCreateDto;
 import com.niqdev.web.dto.request.UserUpdateDto;
 import com.niqdev.web.dto.response.OperationResponseDto;
 import com.niqdev.web.dto.response.UserResponseDto;
-import com.niqdev.web.model.UserModel;
 
 public interface UserService extends UserDetailsService {
 
@@ -21,7 +20,5 @@ public interface UserService extends UserDetailsService {
 	UserResponseDto updateUser(String userId, UserUpdateDto userUpdateDto);
 
 	OperationResponseDto deleteUser(String userId);
-
-	UserModel getUserByEmailInternal(String email);
 	
 }
