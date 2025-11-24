@@ -3,9 +3,8 @@ package com.niqdev.web.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,20 +15,28 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.niqdev.web.dto.UserDto;
+import com.niqdev.web.dto.request.UserCreateDto;
+import com.niqdev.web.dto.request.UserUpdateDto;
+import com.niqdev.web.dto.response.OperationResponseDto;
+import com.niqdev.web.dto.response.UserResponseDto;
 import com.niqdev.web.entity.UserEntity;
+import com.niqdev.web.exception.OperationNames;
+import com.niqdev.web.exception.OperationStatuses;
 import com.niqdev.web.exception.UserServiceErrors;
 import com.niqdev.web.exception.UserServiceException;
+import com.niqdev.web.mapper.UserMapper;
+import com.niqdev.web.model.UserModel;
 import com.niqdev.web.repository.UserRepository;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 @Service
 public class UserServiceImpl implements UserService {
 	
-	@Autowired
-	private UserRepository userRepository;
-	
-	@Autowired
-	private PasswordEncoder passwordEncoder;
+	private final UserRepository userRepository;
+	private final UserMapper userMapper;
+	private final PasswordEncoder passwordEncoder;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -48,98 +55,37 @@ public class UserServiceImpl implements UserService {
 	
 	@Transactional
 	@Override
-	public UserDto createUser(UserDto userToCreate) {
+	public UserResponseDto createUser(UserCreateDto userCreateDto) {
 
-		if (userRepository.findUserByEmail(userToCreate.getEmail()) != null) {
+		if (userRepository.findUserByEmail(userCreateDto.getEmail()) != null) {
 			throw new UserServiceException(UserServiceErrors.RECORD_ALREADY_EXISTS);
 		}
 		
-		UserEntity userToSave = new UserEntity();
+		UserModel userModel = userMapper.toModel(userCreateDto);
 		
-		BeanUtils.copyProperties(userToCreate, userToSave);
+		userModel.setUserId(UUID.randomUUID().toString());
 		
-		userToSave.setUserId(UUID.randomUUID().toString());
+		userModel.setEncryptedPassword(passwordEncoder.encode(userCreateDto.getPassword()));
 		
-		userToSave.setEncryptedPassword(passwordEncoder.encode(userToCreate.getPassword()));
+		UserEntity userEntity = userRepository.save(userMapper.toEntity(userModel));
 		
-		UserEntity userSaved = userRepository.save(userToSave);
-		
-		UserDto userToReturn = new UserDto();
-		
-		BeanUtils.copyProperties(userSaved, userToReturn);
-		
-		return userToReturn;
+		return userMapper.toDto(userMapper.toModel(userEntity));
 	}
 
 	@Override
-	public UserDto getUserByEmail(String email) {
+	public UserResponseDto getUserByUserId(String userId) {
 		
-		UserEntity userFound = userRepository.findUserByEmail(email);
+		UserEntity userEntity = userRepository.findUserByUserId(userId);
 		
-		if (userFound == null) {
+		if (userEntity == null) {
 			throw new UserServiceException(UserServiceErrors.NO_RECORD_FOUND);
 		}
 		
-		UserDto userToReturn = new UserDto();
-		
-		BeanUtils.copyProperties(userFound, userToReturn);
-		
-		return userToReturn;
+		return userMapper.toDto(userMapper.toModel(userEntity));
 	}
-
+	
 	@Override
-	public UserDto getUserByUserId(String userId) {
-		
-		UserEntity userFound = userRepository.findUserByUserId(userId);
-		
-		if (userFound == null) {
-			throw new UserServiceException(UserServiceErrors.NO_RECORD_FOUND);
-		}
-		
-		UserDto userToReturn = new UserDto();
-		
-		BeanUtils.copyProperties(userFound, userToReturn);
-		
-		return userToReturn;
-	}
-
-	@Transactional
-	@Override
-	public UserDto updateUser(String userId, UserDto userDto) {
-		
-		UserEntity userFound = userRepository.findUserByUserId(userId);
-		
-		if (userFound == null) {
-			throw new UserServiceException(UserServiceErrors.NO_RECORD_FOUND);
-		}
-		
-		userFound.setFirstName(userDto.getFirstName());
-		userFound.setLastName(userDto.getLastName());
-
-		UserEntity userUpdated = userRepository.save(userFound);
-		
-		UserDto userToReturn = new UserDto();
-		
-		BeanUtils.copyProperties(userUpdated, userToReturn);
-		
-		return userToReturn;
-	}
-
-	@Transactional
-	@Override
-	public void deleteUser(String userId) {
-		
-		UserEntity userFound = userRepository.findUserByUserId(userId);
-		
-		if (userFound == null) {
-			throw new UserServiceException(UserServiceErrors.NO_RECORD_FOUND);
-		}
-		
-		userRepository.delete(userFound);
-	}
-
-	@Override
-	public List<UserDto> getUsers(int page, int limit) {
+	public List<UserResponseDto> getUsers(int page, int limit) {
 		
 		if (page > 0) {
 			page = page - 1;
@@ -147,20 +93,62 @@ public class UserServiceImpl implements UserService {
 		
 		Pageable pageable = PageRequest.of(page, limit);
 		
-		Page<UserEntity> usersFound = userRepository.findAll(pageable);
+		Page<UserEntity> userEntities = userRepository.findAll(pageable);
 		
-		List<UserDto> usersToReturn = new ArrayList<>();
+		return userEntities.stream()
+				.map(userMapper::toModel)
+				.map(userMapper::toDto)
+				.collect(Collectors.toList());
+	}
+
+	@Transactional
+	@Override
+	public UserResponseDto updateUser(String userId, UserUpdateDto userUpdateDto) {
 		
-		for (UserEntity userFound : usersFound) {
-			
-			UserDto userToReturn = new UserDto();
-			
-			BeanUtils.copyProperties(userFound, userToReturn);
-			
-			usersToReturn.add(userToReturn);
+		UserEntity userEntity = userRepository.findUserByUserId(userId);
+		
+		if (userEntity == null) {
+			throw new UserServiceException(UserServiceErrors.NO_RECORD_FOUND);
 		}
 		
-		return usersToReturn;
+		userEntity.setFirstName(userUpdateDto.getFirstName());
+		userEntity.setLastName(userUpdateDto.getLastName());
+		
+		return userMapper.toDto(userMapper.toModel(userRepository.save(userEntity)));
+	}
+
+	@Transactional
+	@Override
+	public OperationResponseDto deleteUser(String userId) {
+		
+		UserEntity userEntity = userRepository.findUserByUserId(userId);
+		
+		if (userEntity == null) {
+			throw new UserServiceException(UserServiceErrors.NO_RECORD_FOUND);
+		}
+		
+		userRepository.delete(userEntity);
+		
+		OperationResponseDto operationResponseDto = new OperationResponseDto();
+		
+		operationResponseDto.setName(OperationNames.DELETE.name());
+		operationResponseDto.setResult(OperationStatuses.SUCCESS.name());
+		
+		return operationResponseDto;
+	}
+
+	
+	
+	@Override
+	public UserModel getUserByEmailInternal(String email) {
+		
+		UserEntity userEntity = userRepository.findUserByEmail(email);
+		
+		if (userEntity == null) {
+			throw new UserServiceException(UserServiceErrors.NO_RECORD_FOUND);
+		}
+		
+		return userMapper.toModel(userEntity);
 	}
 
 }

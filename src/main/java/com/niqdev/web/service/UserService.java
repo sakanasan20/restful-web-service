@@ -4,20 +4,24 @@ import java.util.List;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 
-import com.niqdev.web.dto.UserDto;
+import com.niqdev.web.dto.request.UserCreateDto;
+import com.niqdev.web.dto.request.UserUpdateDto;
+import com.niqdev.web.dto.response.OperationResponseDto;
+import com.niqdev.web.dto.response.UserResponseDto;
+import com.niqdev.web.model.UserModel;
 
 public interface UserService extends UserDetailsService {
 
-	UserDto createUser(UserDto userDto);
+	UserResponseDto createUser(UserCreateDto userCreateDto);
 
-	UserDto getUserByEmail(String email);
+	UserResponseDto getUserByUserId(String userId);
+	
+	List<UserResponseDto> getUsers(int page, int limit);
+	
+	UserResponseDto updateUser(String userId, UserUpdateDto userUpdateDto);
 
-	UserDto getUserByUserId(String userId);
+	OperationResponseDto deleteUser(String userId);
 
-	UserDto updateUser(String userId, UserDto userDto);
-
-	void deleteUser(String userId);
-
-	List<UserDto> getUsers(int page, int limit);
-
+	UserModel getUserByEmailInternal(String email);
+	
 }

@@ -1,5 +1,6 @@
-package com.niqdev.web.model.response;
+package com.niqdev.web.dto.response;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import lombok.AllArgsConstructor;
@@ -11,7 +12,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ErrorMessageModel {
+public class ErrorResponseDto implements Serializable {
+
+	private static final long serialVersionUID = -3457940065204974281L;
 
 	private Date timestamp;
 	

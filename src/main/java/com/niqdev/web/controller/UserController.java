@@ -1,10 +1,8 @@
 package com.niqdev.web.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,107 +12,70 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.niqdev.web.dto.UserDto;
-import com.niqdev.web.exception.OperationNames;
-import com.niqdev.web.exception.OperationStatuses;
+import com.niqdev.web.dto.request.UserCreateDto;
+import com.niqdev.web.dto.request.UserUpdateDto;
+import com.niqdev.web.dto.response.OperationResponseDto;
+import com.niqdev.web.dto.response.UserResponseDto;
 import com.niqdev.web.exception.UserServiceErrors;
 import com.niqdev.web.exception.UserServiceException;
-import com.niqdev.web.model.request.UserCreateModel;
-import com.niqdev.web.model.request.UserUpdateModel;
-import com.niqdev.web.model.response.OperationStatusModel;
-import com.niqdev.web.model.response.UserModel;
 import com.niqdev.web.service.UserService;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
-	
-	@Autowired
-	private UserService userService;
 
-	@GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-	public List<UserModel> getUsers(@RequestParam(value = "page", defaultValue = "0") int page,
-			@RequestParam(value = "limit", defaultValue = "25") int limit) {
-		
-		List<UserModel> userModels = new ArrayList<>();
-		
-		List<UserDto> usersFound = userService.getUsers(page, limit);
-		
-		for (UserDto userFound : usersFound) {
-			UserModel userModel = new UserModel();
-			BeanUtils.copyProperties(userFound, userModel);
-			userModels.add(userModel);
-		}
-		
-		return userModels;
-	}
+	private final UserService userService;
 	
-	@GetMapping(path = "/{userId}", 
+	@ResponseStatus(code = HttpStatus.CREATED)
+	@PostMapping(
+			consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE }, 
 			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-	public UserModel getUser(@PathVariable(name = "userId") String userId) {
-		
-		UserModel userModel = new UserModel();
-		
-		UserDto userFound = userService.getUserByUserId(userId);
-		
-		BeanUtils.copyProperties(userFound, userModel);
-		
-		return userModel;
-	}
-	
-	@PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE }, 
-			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-	public UserModel createUser(@RequestBody UserCreateModel user) {
-		
-		if (user.getFirstName().isBlank()) {
+	public UserResponseDto createUser(
+			@RequestBody UserCreateDto userCreateDto) {
+		if (userCreateDto.getFirstName().isBlank()) {
 			throw new UserServiceException(UserServiceErrors.MISSING_REQUIRED_FIELD);
 		}
-		
-		UserModel userModel = new UserModel();
-		
-		UserDto userDto = new UserDto();
-		
-		BeanUtils.copyProperties(user, userDto);
-		
-		UserDto createdUser = userService.createUser(userDto);
-		
-		BeanUtils.copyProperties(createdUser, userModel);
-		
-		return userModel;
+		return userService.createUser(userCreateDto);
 	}
 	
-	@PutMapping(path = "/{userId}", 
+	@GetMapping(
+			path = "/{userId}", 
+			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+	public UserResponseDto getUser(
+			@PathVariable(name = "userId") String userId) {
+		return userService.getUserByUserId(userId);
+	}
+	
+	@GetMapping(
+			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+	public List<UserResponseDto> getUsers(
+			@RequestParam(value = "page", defaultValue = "0") int page,
+			@RequestParam(value = "limit", defaultValue = "25") int limit) {
+		return userService.getUsers(page, limit);
+	}
+	
+	@PutMapping(
+			path = "/{userId}", 
 			consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE },
 			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-	public UserModel updateUser(@PathVariable(name = "userId") String userId, 
-			@RequestBody UserUpdateModel user) {
-		
-		UserModel userModel = new UserModel();
-		
-		UserDto userDto = new UserDto();
-		
-		BeanUtils.copyProperties(user, userDto);
-		
-		UserDto updatedUser = userService.updateUser(userId, userDto);
-		
-		BeanUtils.copyProperties(updatedUser, userModel);
-		
-		return userModel;
+	public UserResponseDto updateUser(
+			@PathVariable(name = "userId") String userId, 
+			@RequestBody UserUpdateDto userUpdateDto) {
+		return userService.updateUser(userId, userUpdateDto);
 	}
 	
-	@DeleteMapping(path = "/{userId}")
-	public OperationStatusModel deleteUser(@PathVariable(name = "userId") String userId) {
-		
-		userService.deleteUser(userId);
-		
-		OperationStatusModel operationStatus = new OperationStatusModel();
-		
-		operationStatus.setOperationName(OperationNames.DELETE.name());
-		operationStatus.setOperationResult(OperationStatuses.SUCCESS.name());
-		
-		return operationStatus;
+	@DeleteMapping(
+			path = "/{userId}",
+			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+	public OperationResponseDto deleteUser(
+			@PathVariable(name = "userId") String userId) {
+		return userService.deleteUser(userId);
 	}
 	
 }

@@ -18,8 +18,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.niqdev.web.config.SecurityConstants;
 import com.niqdev.web.config.SecurityProperties;
-import com.niqdev.web.dto.UserDto;
-import com.niqdev.web.model.request.UserLoginModel;
+import com.niqdev.web.dto.request.UserLoginDto;
+import com.niqdev.web.model.UserModel;
 import com.niqdev.web.service.UserService;
 
 import io.jsonwebtoken.Jwts;
@@ -46,16 +46,16 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 			throws AuthenticationException {
 		
 		try {
-			UserLoginModel loginRequestModel = 
+			UserLoginDto userLoginDto = 
 					new ObjectMapper().readValue(
 							request.getInputStream(), 
-							UserLoginModel.class);
+							UserLoginDto.class);
 			
 			return this.getAuthenticationManager()
 					.authenticate(
 							new UsernamePasswordAuthenticationToken(
-									loginRequestModel.getEmail(), 
-									loginRequestModel.getPassword(), 
+									userLoginDto.getEmail(), 
+									userLoginDto.getPassword(), 
 									new ArrayList<>()));
 			
 		} catch (Exception e) {
@@ -65,15 +65,14 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
 	@Override
 	protected void successfulAuthentication(
-			HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-			Authentication authResult) 
+			HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) 
 			throws IOException, ServletException {
 		
 		byte[] secretBytes = Base64.getEncoder().encode(props.getTokenSecret().getBytes());
 		SecretKey key = Keys.hmacShaKeyFor(secretBytes);
 		String email = ((User) authResult.getPrincipal()).getUsername();
 		Instant now = Instant.now();
-		UserDto userDto = userService.getUserByEmail(email);
+		UserModel userModel = userService.getUserByEmailInternal(email);
 		
 		String jws = Jwts.builder()
 		    .subject(email)
@@ -81,9 +80,8 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 		    .issuedAt(Date.from(now))
 		    .signWith(key, Jwts.SIG.HS512)
 		    .compact();
-		
-		
-		response.addHeader("UserId", userDto.getUserId());
+
+		response.addHeader("UserId", userModel.getUserId());
 		response.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PRIFIX + jws);
 	}
 

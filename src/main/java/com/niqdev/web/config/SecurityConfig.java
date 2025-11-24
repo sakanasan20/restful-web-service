@@ -15,14 +15,13 @@ import com.niqdev.web.filter.AuthenticationFilter;
 import com.niqdev.web.filter.AuthorizationFilter;
 import com.niqdev.web.service.UserService;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 @Configuration
 public class SecurityConfig {
 
     private final SecurityProperties props;
-	
-	public SecurityConfig(SecurityProperties props) {
-		this.props = props;
-	}
 
 	@Bean
 	PasswordEncoder passwordEncoder() {

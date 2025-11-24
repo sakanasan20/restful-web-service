@@ -1,4 +1,4 @@
-package com.niqdev.web.dto;
+package com.niqdev.web.model;
 
 import java.io.Serializable;
 
@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UserDto implements Serializable {
+public class UserModel implements Serializable {
 	
 	private static final long serialVersionUID = -82378767100517158L;
 
