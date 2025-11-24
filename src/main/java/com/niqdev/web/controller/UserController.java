@@ -17,10 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.niqdev.web.dto.request.UserCreateDto;
 import com.niqdev.web.dto.request.UserUpdateDto;
+import com.niqdev.web.dto.response.AddressResponseDto;
 import com.niqdev.web.dto.response.OperationResponseDto;
 import com.niqdev.web.dto.response.UserResponseDto;
 import com.niqdev.web.exception.UserServiceErrors;
 import com.niqdev.web.exception.UserServiceException;
+import com.niqdev.web.service.AddressService;
 import com.niqdev.web.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,7 @@ import lombok.RequiredArgsConstructor;
 public class UserController {
 
 	private final UserService userService;
+	private final AddressService addressService;
 	
 	@ResponseStatus(code = HttpStatus.CREATED)
 	@PostMapping(
@@ -76,6 +79,23 @@ public class UserController {
 	public OperationResponseDto deleteUser(
 			@PathVariable(name = "userId") String userId) {
 		return userService.deleteUser(userId);
+	}
+	
+	@GetMapping(
+			path = "/{userId}/addresses", 
+			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+	public List<AddressResponseDto> getAddresses(
+			@PathVariable(name = "userId") String userId) {
+		return addressService.getByUserId(userId);
+	}
+	
+	@GetMapping(
+			path = "/{userId}/addresses/{addressId}", 
+			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+	public AddressResponseDto getAddress(
+			@PathVariable(name = "userId") String userId, 
+			@PathVariable(name = "addressId") String addressId) {
+		return addressService.getByUserIdAndAddressId(userId, addressId);
 	}
 	
 }
