@@ -102,9 +102,6 @@ public class UserServiceImpl implements UserService {
 		return userMapper.toDtoPage(userEntities);
 	}
 	
-	/**
-	 * 
-	 */
 	@Transactional
 	@Override
 	public UserResponseDto updateUser(String userId, UserUpdateDto userUpdateDto) {
