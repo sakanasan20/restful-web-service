@@ -22,5 +22,7 @@ public class AddressResponseDto implements Serializable {
     private String country;
     
     private String type;
+    
+    private String userId;
 	
 }

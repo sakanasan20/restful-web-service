@@ -1,7 +1,6 @@
 package com.niqdev.web.service;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import com.niqdev.web.dto.request.UserCreateDto;
@@ -15,7 +14,7 @@ public interface UserService extends UserDetailsService {
 
 	UserResponseDto getUserByUserId(String userId);
 	
-	List<UserResponseDto> getUsers(int page, int limit);
+	Page<UserResponseDto> getUsers(int page, int limit);
 	
 	UserResponseDto updateUser(String userId, UserUpdateDto userUpdateDto);
 

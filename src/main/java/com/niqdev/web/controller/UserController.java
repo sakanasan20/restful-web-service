@@ -1,7 +1,8 @@
 package com.niqdev.web.controller;
 
-import java.util.List;
-
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.niqdev.web.assembler.AddressModelAssembler;
+import com.niqdev.web.assembler.UserModelAssembler;
 import com.niqdev.web.dto.request.UserCreateDto;
 import com.niqdev.web.dto.request.UserUpdateDto;
 import com.niqdev.web.dto.response.AddressResponseDto;
@@ -33,44 +36,46 @@ import lombok.RequiredArgsConstructor;
 public class UserController {
 
 	private final UserService userService;
+	private final UserModelAssembler userModelAssembler;
 	private final AddressService addressService;
+	private final AddressModelAssembler addressModelAssembler;
 	
 	@ResponseStatus(code = HttpStatus.CREATED)
 	@PostMapping(
 			consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE }, 
 			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-	public UserResponseDto createUser(
+	public EntityModel<UserResponseDto> createUser(
 			@RequestBody UserCreateDto userCreateDto) {
 		if (userCreateDto.getFirstName().isBlank()) {
 			throw new UserServiceException(UserServiceErrors.MISSING_REQUIRED_FIELD);
 		}
-		return userService.createUser(userCreateDto);
+		return userModelAssembler.toModel(userService.createUser(userCreateDto));
 	}
 	
 	@GetMapping(
 			path = "/{userId}", 
 			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-	public UserResponseDto getUser(
+	public EntityModel<UserResponseDto> getUser(
 			@PathVariable(name = "userId") String userId) {
-		return userService.getUserByUserId(userId);
+		return userModelAssembler.toModel(userService.getUserByUserId(userId));
 	}
 	
 	@GetMapping(
 			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-	public List<UserResponseDto> getUsers(
+	public PagedModel<EntityModel<UserResponseDto>> getUsers(
 			@RequestParam(value = "page", defaultValue = "0") int page,
 			@RequestParam(value = "limit", defaultValue = "25") int limit) {
-		return userService.getUsers(page, limit);
+		return userModelAssembler.toPagedModel(userService.getUsers(page, limit));
 	}
 	
 	@PutMapping(
 			path = "/{userId}", 
 			consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE },
 			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-	public UserResponseDto updateUser(
+	public EntityModel<UserResponseDto> updateUser(
 			@PathVariable(name = "userId") String userId, 
 			@RequestBody UserUpdateDto userUpdateDto) {
-		return userService.updateUser(userId, userUpdateDto);
+		return userModelAssembler.toModel(userService.updateUser(userId, userUpdateDto));
 	}
 	
 	@DeleteMapping(
@@ -84,18 +89,18 @@ public class UserController {
 	@GetMapping(
 			path = "/{userId}/addresses", 
 			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-	public List<AddressResponseDto> getAddresses(
+	public CollectionModel<EntityModel<AddressResponseDto>> getAddresses(
 			@PathVariable(name = "userId") String userId) {
-		return addressService.getByUserId(userId);
+	    return addressModelAssembler.toCollectionModel(addressService.getByUserId(userId));
 	}
 	
 	@GetMapping(
 			path = "/{userId}/addresses/{addressId}", 
 			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-	public AddressResponseDto getAddress(
+	public EntityModel<AddressResponseDto> getAddress(
 			@PathVariable(name = "userId") String userId, 
 			@PathVariable(name = "addressId") String addressId) {
-		return addressService.getByUserIdAndAddressId(userId, addressId);
+		return addressModelAssembler.toModel(addressService.getByUserIdAndAddressId(userId, addressId));
 	}
 	
 }

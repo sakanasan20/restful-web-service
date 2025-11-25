@@ -1,8 +1,6 @@
 package com.niqdev.web.service;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -91,7 +89,7 @@ public class UserServiceImpl implements UserService {
 	
 	@Transactional(readOnly = true)
 	@Override
-	public List<UserResponseDto> getUsers(int page, int limit) {
+	public Page<UserResponseDto> getUsers(int page, int limit) {
 		
 		if (page > 0) {
 			page = page - 1;
@@ -101,12 +99,12 @@ public class UserServiceImpl implements UserService {
 		
 		Page<UserEntity> userEntities = userRepository.findAllWithDetail(pageable);
 		
-		return userEntities.stream()
-				.map(userMapper::toModel)
-				.map(userMapper::toDto)
-				.collect(Collectors.toList());
+		return userMapper.toDtoPage(userEntities);
 	}
-
+	
+	/**
+	 * 
+	 */
 	@Transactional
 	@Override
 	public UserResponseDto updateUser(String userId, UserUpdateDto userUpdateDto) {
