@@ -16,8 +16,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.niqdev.web.assembler.AddressModelAssembler;
-import com.niqdev.web.assembler.UserModelAssembler;
+import com.niqdev.web.assembler.AddressResponseAssembler;
+import com.niqdev.web.assembler.OperationResponseAssembler;
+import com.niqdev.web.assembler.UserResponseAssembler;
 import com.niqdev.web.dto.request.UserCreateDto;
 import com.niqdev.web.dto.request.UserUpdateDto;
 import com.niqdev.web.dto.response.AddressResponseDto;
@@ -36,9 +37,10 @@ import lombok.RequiredArgsConstructor;
 public class UserController {
 
 	private final UserService userService;
-	private final UserModelAssembler userModelAssembler;
+	private final UserResponseAssembler userResponseAssembler;
 	private final AddressService addressService;
-	private final AddressModelAssembler addressModelAssembler;
+	private final AddressResponseAssembler addressResponseAssembler;
+	private final OperationResponseAssembler operationResponseAssembler;
 	
 	@ResponseStatus(code = HttpStatus.CREATED)
 	@PostMapping(
@@ -49,7 +51,7 @@ public class UserController {
 		if (userCreateDto.getFirstName().isBlank()) {
 			throw new UserServiceException(UserServiceErrors.MISSING_REQUIRED_FIELD);
 		}
-		return userModelAssembler.toModel(userService.createUser(userCreateDto));
+		return userResponseAssembler.toModel(userService.createUser(userCreateDto));
 	}
 	
 	@GetMapping(
@@ -57,7 +59,7 @@ public class UserController {
 			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	public EntityModel<UserResponseDto> getUser(
 			@PathVariable(name = "userId") String userId) {
-		return userModelAssembler.toModel(userService.getUserByUserId(userId));
+		return userResponseAssembler.toModel(userService.getUserByUserId(userId));
 	}
 	
 	@GetMapping(
@@ -65,7 +67,7 @@ public class UserController {
 	public PagedModel<EntityModel<UserResponseDto>> getUsers(
 			@RequestParam(value = "page", defaultValue = "0") int page,
 			@RequestParam(value = "limit", defaultValue = "25") int limit) {
-		return userModelAssembler.toPagedModel(userService.getUsers(page, limit));
+		return userResponseAssembler.toPagedModel(userService.getUsers(page, limit));
 	}
 	
 	@PutMapping(
@@ -75,15 +77,15 @@ public class UserController {
 	public EntityModel<UserResponseDto> updateUser(
 			@PathVariable(name = "userId") String userId, 
 			@RequestBody UserUpdateDto userUpdateDto) {
-		return userModelAssembler.toModel(userService.updateUser(userId, userUpdateDto));
+		return userResponseAssembler.toModel(userService.updateUser(userId, userUpdateDto));
 	}
 	
 	@DeleteMapping(
 			path = "/{userId}",
 			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-	public OperationResponseDto deleteUser(
+	public EntityModel<OperationResponseDto> deleteUser(
 			@PathVariable(name = "userId") String userId) {
-		return userService.deleteUser(userId);
+		return operationResponseAssembler.toModel(userService.deleteUser(userId));
 	}
 	
 	@GetMapping(
@@ -91,7 +93,7 @@ public class UserController {
 			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	public CollectionModel<EntityModel<AddressResponseDto>> getAddresses(
 			@PathVariable(name = "userId") String userId) {
-	    return addressModelAssembler.toCollectionModel(addressService.getByUserId(userId));
+	    return addressResponseAssembler.toCollectionModel(addressService.getByUserId(userId));
 	}
 	
 	@GetMapping(
@@ -100,7 +102,7 @@ public class UserController {
 	public EntityModel<AddressResponseDto> getAddress(
 			@PathVariable(name = "userId") String userId, 
 			@PathVariable(name = "addressId") String addressId) {
-		return addressModelAssembler.toModel(addressService.getByUserIdAndAddressId(userId, addressId));
+		return addressResponseAssembler.toModel(addressService.getByUserIdAndAddressId(userId, addressId));
 	}
 	
 }

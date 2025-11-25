@@ -15,7 +15,7 @@ import com.niqdev.web.controller.UserController;
 import com.niqdev.web.dto.response.UserResponseDto;
 
 @Component
-public class UserModelAssembler implements RepresentationModelAssembler<UserResponseDto, EntityModel<UserResponseDto>> {
+public class UserResponseAssembler implements RepresentationModelAssembler<UserResponseDto, EntityModel<UserResponseDto>> {
 
 	@Override
 	public EntityModel<UserResponseDto> toModel(UserResponseDto user) {

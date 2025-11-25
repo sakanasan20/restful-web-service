@@ -12,7 +12,7 @@ import com.niqdev.web.controller.UserController;
 import com.niqdev.web.dto.response.AddressResponseDto;
 
 @Component
-public class AddressModelAssembler 
+public class AddressResponseAssembler 
 		implements RepresentationModelAssembler<AddressResponseDto, EntityModel<AddressResponseDto>> {
 
 	@Override
